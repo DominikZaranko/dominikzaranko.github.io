@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>getUserMedia + CSS filters</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: Roboto, sans-serif;
+            margin: 0;
+            background: #f7f7f7;
+            color: #333;
+            text-align: center;
+        }
+
+        #container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        video, canvas {
+            width: 100%;
+            max-width: 480px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        canvas {
+            display: block;
+            margin: 10px auto;
+        }
+
+        select, button {
+            padding: 8px 12px;
+            margin: 10px 5px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        button {
+            background: #1976d2;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #125aa0;
+        }
+
+        #cannySliderContainer {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .row {
+            margin: 10px 0;
+        }
+
+        input[type="range"] {
+            width: 60%;
+        }
+
+        label {
+            margin-left: 8px;
+            font-size: 14px;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 15px;
+            color: #1976d2;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Filters (unchanged) */
+        .none { filter: none; }
+        .blur { filter: blur(3px); }
+        .grayscale { filter: grayscale(1); }
+        .invert { filter: invert(1); }
+        .sepia { filter: sepia(1); }
+
+        .hidden-video {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+<div id="container">
+
+    <video autoplay></video>
+    <canvas id="filterView" style="display:none;"></canvas>
+
+    <div>
+        <label for="filter">Filter:</label>
+        <select id="filter">
+            <option value="none">None</option>
+            <option value="blur">Blur</option>
+            <option value="grayscale">Grayscale</option>
+            <option value="invert">Invert</option>
+            <option value="sepia">Sepia</option>
+            <option value="canny">Canny Edge</option>
+        </select>
+
+        <button id="snapshot">Take snapshot</button>
+    </div>
+
+    <div id="cannySliderContainer">
+        <div class="row">
+            <input type="range" min="1" max="255" value="50" id="cannyThres1">
+            <label for="cannyThres1">Threshold 1: <span id="cannyVal1">50</span></label>
+        </div>
+        <div class="row">
+            <input type="range" min="1" max="255" value="150" id="cannyThres2">
+            <label for="cannyThres2">Threshold 2: <span id="cannyVal2">150</span></label>
+        </div>
+    </div>
+
+    <canvas id="snapshotView"></canvas>
+
+    <p>
+        Draw a frame from the video stream onto the canvas, then apply filters.
+    </p>
+
+    <a href="https://github.com/webrtc/samples/tree/gh-pages/src/content/getusermedia/filter">
+        View source on GitHub
+    </a>
+</div>
+
+<script async src="https://docs.opencv.org/4.5.0/opencv.js"></script>
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<script src="js/main.js" async></script>
+</body>
+</html>
