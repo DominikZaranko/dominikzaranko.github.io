@@ -37,8 +37,20 @@ pc.oniceconnectionstatechange = function(e) {
 };
 
 function dcInit(dc) {
-  dc.onopen    = function()  {$("textarea").attr("disabled",true);addMSG("CONNECTED!", "info")};
-  dc.onmessage = function(e) {if (e.data) addMSG(e.data, "other");}
+  dc.onopen = function() {
+    $("textarea").attr("disabled", true);
+    addMSG("CONNECTED!", "info");
+  };
+
+  dc.onmessage = function(e) {
+    if (!e.data) return;
+
+    if (e.data.startsWith("data:image/")) {
+      addMSG('<img src="' + e.data + '" width="160">', "other");
+    } else {
+      addMSG(e.data, "other");
+    }
+  };
 }
 
 function createAnswerSDP() {

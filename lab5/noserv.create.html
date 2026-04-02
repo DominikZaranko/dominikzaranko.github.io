@@ -12,7 +12,10 @@
 <textarea id="creater-sdp"></textarea>
 <h3> 4.GET Participant's SDP <button id="start">start</button></h3>
 <textarea id="joiner-sdp" placeholder="HERE COPY AND PASTE [3.Participant'S SDP]"></textarea>
-<h3> CHAT </h3>
+<h3> CAMERA </h3>
+<video id="video" autoplay playsinline width="320" height="240" style="border:1px solid black;"></video>
+<br>
+<button id="capture" disabled>Send Picture</button><h3> CHAT </h3>
 <div id="chat">
   <div id="chat-screen-wp">
     <div id="chat-screen"></div>
@@ -35,12 +38,37 @@ pc.onicecandidate = function(e) {
   $("#creater-sdp").val(JSON.stringify(pc.localDescription));
 }
 
+const video = document.getElementById('video');
+navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+  .then(stream => { video.srcObject = stream; })
+  .catch(err => console.error("Camera error:", err));
+
+document.getElementById('capture').onclick = function() {
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth || 320;
+  canvas.height = video.videoHeight || 240;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  const base64Image = canvas.toDataURL('image/jpeg', 0.8);
+
+  if (dc && dc.readyState === "open") {
+    dc.send(base64Image);
+    addMSG('<img src="' + base64Image + '" width="160">', "me");
+  } else {
+    alert("Data channel not connected yet!");
+  }
+};
+
 function createOfferSDP() {
   dc = pc.createDataChannel("chat");
   pc.createOffer().then(function(e) {
     pc.setLocalDescription(e)
   });
-  dc.onopen = function(){$("textarea").attr("disabled",true);addMSG("CONNECTED!", "info")};
+  dc.onopen = function(){
+    $("textarea").attr("disabled",true);
+    addMSG("CONNECTED!", "info");
+    $("#capture").attr("disabled", false);
+  };
   dc.onmessage = function(e) {
     if (e.data) addMSG(e.data, "other");
   }
